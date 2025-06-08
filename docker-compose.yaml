@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+    db:
+        image: mongodb:latest
+        container_name: mongo
+        ports:
+            - "27017:27017"
+        volumes:
+            - mongo_data:/data/db
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        container_name: backend_service
+        ports:
+            - "5000:5000"
+        depends_on:
+            - db
+        environment:
+            - MONGO_URI=mongodb://db:27017/mern-ecommerce
+        volumes:
+            - backend_data:/app
+        command: npm start
+    frontend:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: frontend_service
+        ports:
+            - "3000:3000"
+        depends_on:
+            - backend
+        volumes:
+            - frontend_data:/app
+        command: serve -s build
+volumes:
+    mongo_data:
